@@ -1,19 +1,19 @@
 {
-  "name": "ralph-marketplace",
+  "name": "ralph-windows-marketplace",
   "owner": {
     "name": "KyleBastien"
   },
   "metadata": {
-    "description": "Skills for the Ralph autonomous agent system - Generate PRDs and convert them to prd.json format for autonomous execution with Copilot CLI or Claude Code",
+    "description": "Skills for the Ralph-Windows autonomous agent system - Generate PRDs and convert them to prd.json format for autonomous execution with Copilot CLI or Claude Code",
     "version": "1.0.0"
   },
   "plugins": [
     {
-      "name": "ralph-skills",
+      "name": "ralph-windows-skills",
       "source": "./",
-      "description": "PRD generation and conversion skills for the Ralph autonomous agent loop (Copilot CLI and Claude Code)",
+      "description": "PRD generation and conversion skills for the Ralph-Windows autonomous agent loop (Copilot CLI and Claude Code)",
       "version": "1.0.0",
-      "keywords": ["ralph", "prd", "automation", "agent", "planning"],
+      "keywords": ["ralph-windows", "prd", "automation", "agent", "planning"],
       "category": "productivity",
       "skills": "./skills/"
     }

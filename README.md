@@ -1,19 +1,21 @@
-# Ralph
+# Ralph-Windows
 
-![Ralph](ralph.webp)
+![Ralph-Windows](ralph.webp)
 
 Ralph is an autonomous AI agent loop that runs AI coding tools ([Copilot CLI](https://docs.github.com/en/copilot) or [Claude Code](https://docs.anthropic.com/en/docs/claude-code)) repeatedly until all PRD items are complete. Each iteration is a fresh instance with clean context. Memory persists via git history, `progress.txt`, and `prd.json`.
 
+This is forked from [snarktank/ralph](https://github.com/snarktank/ralph) and adapted for a windows environment.
+
 Based on [Geoffrey Huntley's Ralph pattern](https://ghuntley.com/ralph/).
 
-[Read my in-depth article on how I use Ralph](https://x.com/ryancarson/status/2008548371712135632)
+[Read Ryan Carson's in-depth article on how to use Ralph](https://x.com/ryancarson/status/2008548371712135632)
 
 ## Quick Start
 
-Run this one-liner in your project directory to install Ralph:
+Run this one-liner in your project directory to install Ralph-Windows:
 
 ```powershell
-iex (irm https://raw.githubusercontent.com/snarktank/ralph/main/init-ralph.ps1)
+iex (irm https://raw.githubusercontent.com/KyleBastien/ralph-windows/main/init-ralph.ps1)
 ```
 
 This creates `scripts\ralph\` with everything you need, and updates your `.gitignore`.
@@ -26,11 +28,11 @@ This creates `scripts\ralph\` with everything you need, and updates your `.gitig
 - PowerShell 5.1+ (included with Windows) or PowerShell 7+ (cross-platform)
 - A git repository for your project
 
-## Setup
+## Manual Setup
 
 ### Option 1: Copy to your project
 
-Copy the ralph files into your project:
+Copy the ralph-windows files into your project:
 
 ```powershell
 # From your project root
@@ -50,16 +52,16 @@ Copy-Item -Recurse skills\ralph $env:USERPROFILE\.claude\skills\
 
 ### Option 3: Use as Claude Code Marketplace
 
-Add the Ralph marketplace to Claude Code:
+Add the Ralph-Windows marketplace to Claude Code:
 
 ```bash
-/plugin marketplace add snarktank/ralph
+/plugin marketplace add KyleBastien/ralph-windows
 ```
 
 Then install the skills:
 
 ```bash
-/plugin install ralph-skills@ralph-marketplace
+/plugin install ralph-windows-skills@ralph-windows-marketplace
 ```
 
 Available skills after installation:
@@ -126,21 +128,6 @@ Ralph will:
 | `skills/prd/` | Skill for generating PRDs |
 | `skills/ralph/` | Skill for converting PRDs to JSON |
 | `.claude-plugin/` | Plugin manifest for Claude Code marketplace discovery |
-| `flowchart/` | Interactive visualization of how Ralph works |
-
-## Flowchart
-
-[![Ralph Flowchart](ralph-flowchart.png)](https://snarktank.github.io/ralph/)
-
-**[View Interactive Flowchart](https://snarktank.github.io/ralph/)** - Click through to see each step with animations.
-
-The `flowchart/` directory contains the source code. To run locally:
-
-```powershell
-cd flowchart
-npm install
-npm run dev
-```
 
 ## Critical Concepts
 
