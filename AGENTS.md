@@ -2,27 +2,53 @@
 
 ## Overview
 
-Ralph is an autonomous AI agent loop that runs AI coding tools (Copilot CLI or Claude Code) repeatedly until all PRD items are complete. Each iteration is a fresh instance with clean context.
+Ralph is an autonomous AI agent loop (PowerShell) that spawns fresh Copilot CLI or Claude Code instances in a loop, each completing one user story from a `prd.json` file until all stories pass. Each iteration has **no memory** of previous iterations — state persists only through git history, `prd.json`, and `progress.txt`.
+
+## Architecture
+
+```
+ralph.ps1              # Main loop — spawns AI instances, checks for <promise>COMPLETE</promise>
+CLAUDE.md              # Shared prompt injected into every AI iteration (both tools)
+prd.json.example       # Reference format for the task list
+init-ralph.ps1         # One-liner installer — copies ralph into scripts/ralph/ in a target project
+skills/prd/SKILL.md    # Skill: generates PRD markdown from feature descriptions
+skills/ralph/SKILL.md  # Skill: converts PRD markdown → prd.json for autonomous execution
+.claude-plugin/        # Plugin manifest for Claude Code marketplace discovery
+```
+
+### How ralph.ps1 Works
+
+1. Archives previous run if `prd.json` has a different `branchName` than `.last-branch`
+2. Reads `CLAUDE.md` as the prompt and passes it to either `copilot` or `claude` CLI
+3. For Copilot CLI: streams plain text stdout line-by-line
+4. For Claude Code: streams `--output-format stream-json` and parses `assistant` messages
+5. Checks output for `<promise>COMPLETE</promise>` to know all stories are done
+6. Loops up to `-MaxIterations` (default 10) with 2-second pauses between iterations
+
+### Skill System
+
+Skills live in `skills/<name>/SKILL.md` and are installed to `.agents/skills/` (as well as symlinks to `.claude/skills/` and `.github/skills/`). The `prd` skill generates markdown PRDs; the `ralph` skill converts them to `prd.json`.
 
 ## Commands
 
 ```powershell
-# Run Ralph-Windows with Copilot CLI (default)
+# Run with Copilot CLI (default)
 .\ralph.ps1 [-MaxIterations 10]
 
-# Run Ralph-Windows with Claude Code
+# Run with Claude Code
 .\ralph.ps1 -Tool claude [-MaxIterations 10]
+
+# Check story status
+(Get-Content prd.json | ConvertFrom-Json).userStories | Select-Object id, title, passes
 ```
 
-## Key Files
+## Key Conventions
 
-- `ralph.ps1` - The PowerShell loop that spawns fresh AI instances (supports `-Tool copilot` or `-Tool claude`)
-- `CLAUDE.md` - Shared prompt template used by both tools
-- `prd.json.example` - Example PRD format
-
-## Patterns
-
-- Each iteration spawns a fresh AI instance (Copilot CLI or Claude Code) with clean context
-- Memory persists via git history, `progress.txt`, and `prd.json`
-- Stories should be small enough to complete in one context window
-- Always update AGENTS.md with discovered patterns for future iterations
+- **Commit format**: `feat: [Story ID] - [Story Title]` (e.g., `feat: US-001 - Add priority field`)
+- **Branch naming**: `ralph/<feature-name-kebab-case>` — defined in `prd.json.branchName`
+- **Progress logging**: Always append to `progress.txt`, never overwrite. Include a "Learnings for future iterations" section.
+- **AGENTS.md updates**: After discovering reusable patterns, add them to the nearest `AGENTS.md` so future iterations (and humans) benefit
+- **Story sizing**: Each story must be completable in one context window. If it takes more than 2-3 sentences to describe, split it.
+- **Story ordering**: Dependencies first — schema → backend → UI → aggregation views
+- **Stop signal**: When all stories pass, the AI outputs `<promise>COMPLETE</promise>` and the loop exits
+- **One story per iteration**: Never implement multiple stories in a single AI invocation
