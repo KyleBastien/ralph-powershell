@@ -1,8 +1,8 @@
-# Ralph-Windows
+# Ralph-PowerShell
 
-![Ralph-Windows](ralph.webp)
+![Ralph-PowerShell](ralph.webp)
 
-## This is forked from [snarktank/ralph](https://github.com/snarktank/ralph) and adapted for Windows. snarktank deserves all the credit here.
+## This is forked from [snarktank/ralph](https://github.com/snarktank/ralph) and adapted for PowerShell (cross-platform). snarktank deserves all the credit here.
 
 Ralph is an autonomous AI agent loop that runs AI coding tools ([Copilot CLI](https://docs.github.com/en/copilot) or [Claude Code](https://docs.anthropic.com/en/docs/claude-code)) repeatedly until all PRD items are complete. Each iteration is a fresh instance with clean context. Memory persists via git history, `progress.txt`, and `prd.json`.
 
@@ -12,10 +12,10 @@ Based on [Geoffrey Huntley's Ralph pattern](https://ghuntley.com/ralph/).
 
 ## Quick Start
 
-Run this one-liner in your project directory to install Ralph-Windows:
+Run this one-liner in your project directory to install Ralph-PowerShell:
 
 ```powershell
-iex (irm https://raw.githubusercontent.com/KyleBastien/ralph-windows/main/init-ralph.ps1)
+iex (irm https://raw.githubusercontent.com/KyleBastien/ralph-powershell/main/init-ralph.ps1)
 ```
 
 This creates `scripts\ralph\` with everything you need, and updates your `.gitignore`.
@@ -32,7 +32,7 @@ This creates `scripts\ralph\` with everything you need, and updates your `.gitig
 
 ### Option 1: Copy to your project
 
-Copy the ralph-windows files into your project:
+Copy the ralph-powershell files into your project:
 
 ```powershell
 # From your project root
@@ -52,16 +52,16 @@ Copy-Item -Recurse skills\ralph $env:USERPROFILE\.claude\skills\
 
 ### Option 3: Use as Claude Code Marketplace
 
-Add the Ralph-Windows marketplace to Claude Code:
+Add the Ralph-PowerShell marketplace to Claude Code:
 
 ```bash
-/plugin marketplace add KyleBastien/ralph-windows
+/plugin marketplace add KyleBastien/ralph-powershell
 ```
 
 Then install the skills:
 
 ```bash
-/plugin install ralph-windows-skills@ralph-windows-marketplace
+/plugin install ralph-powershell-skills@ralph-powershell-marketplace
 ```
 
 Available skills after installation:
