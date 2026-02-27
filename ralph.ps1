@@ -1,8 +1,8 @@
 # Ralph Wiggum - Long-running AI agent loop
-# Usage: .\ralph.ps1 [-Tool copilot|claude] [-MaxIterations 10]
+# Usage: .\ralph.ps1 [-Tool copilot|claude|codex] [-MaxIterations 10]
 
 param(
-    [ValidateSet("copilot", "claude")]
+    [ValidateSet("copilot", "claude", "codex")]
     [string]$Tool = "copilot",
     [int]$MaxIterations = 10
 )
@@ -100,7 +100,7 @@ for ($i = 1; $i -le $MaxIterations; $i++) {
             }
 
             $process.WaitForExit()
-        } else {
+        } elseif ($Tool -eq "claude") {
             # Claude Code: stream-json for real-time output display
             $LastWasTool = $false
             $process = New-Object System.Diagnostics.Process
@@ -151,6 +151,79 @@ for ($i = 1; $i -le $MaxIterations; $i++) {
             }
 
             $process.WaitForExit()
+        } elseif ($Tool -eq "codex") {
+            # Codex CLI: stream JSON events for real-time output display
+            $LastWasTool = $false
+            $process = New-Object System.Diagnostics.Process
+            $process.StartInfo.FileName = "codex"
+            $process.StartInfo.Arguments = "exec --json --dangerously-bypass-approvals-and-sandbox `"$($PromptContent -replace '"', '\"')`""
+            $process.StartInfo.WorkingDirectory = $RepoRoot
+            $process.StartInfo.RedirectStandardOutput = $true
+            $process.StartInfo.RedirectStandardError = $true
+            $process.StartInfo.UseShellExecute = $false
+            $process.StartInfo.CreateNoWindow = $true
+            $process.Start() | Out-Null
+
+            $reader = $process.StandardOutput
+            while (-not $reader.EndOfStream) {
+                $line = $reader.ReadLine()
+                if (-not $line) { continue }
+
+                try {
+                    $json = $line | ConvertFrom-Json -ErrorAction SilentlyContinue
+                    if (-not $json) { continue }
+
+                    # Extract item type for completed/started items
+                    $itemType = $null
+                    if ($json.type -eq "item.completed" -or $json.type -eq "item.started") {
+                        $itemType = $json.item.type
+                    }
+
+                    $result = $null
+                    if ($json.type -eq "item.completed") {
+                        switch ($json.item.type) {
+                            "agent_message" { $result = $json.item.text }
+                            "reasoning"     { $result = $json.item.text }
+                            "command_execution" { $result = "-> Running: $($json.item.command)" }
+                            "file_change"   { $result = "-> File change" }
+                            "mcp_tool_call" { $result = "-> MCP tool call" }
+                        }
+                    } elseif ($json.type -eq "item.started") {
+                        if ($json.item.type -eq "command_execution") {
+                            $result = "-> Running: $($json.item.command)"
+                        }
+                    }
+
+                    if ($result) {
+                        if ($itemType -eq "agent_message" -and $LastWasTool) {
+                            Write-Host ""
+                            [System.IO.File]::AppendAllText($TempOutput, "`n")
+                        }
+
+                        if ($itemType -in @("command_execution", "file_change", "mcp_tool_call")) {
+                            Write-Host "`n$result"
+                            [System.IO.File]::AppendAllText($TempOutput, "`n$result")
+                            $LastWasTool = $true
+                        } elseif ($itemType -eq "agent_message") {
+                            # Only agent_message text goes to output file (for completion detection)
+                            Write-Host -NoNewline $result
+                            [System.IO.File]::AppendAllText($TempOutput, $result)
+                            $LastWasTool = $false
+                        } else {
+                            # reasoning and other types: display only
+                            Write-Host -NoNewline $result
+                            $LastWasTool = $false
+                        }
+                    }
+                } catch {
+                    # Non-JSON line, skip
+                }
+            }
+
+            $process.WaitForExit()
+        } else {
+            Write-Host "Error: Tool '$Tool' is not supported. Use 'copilot', 'claude', or 'codex'." -ForegroundColor Red
+            exit 1
         }
 
         $Output = Get-Content $TempOutput -Raw -ErrorAction SilentlyContinue

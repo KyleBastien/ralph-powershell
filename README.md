@@ -4,7 +4,7 @@
 
 ## This is forked from [snarktank/ralph](https://github.com/snarktank/ralph) and adapted for PowerShell (cross-platform). snarktank deserves all the credit here.
 
-Ralph is an autonomous AI agent loop that runs AI coding tools ([Copilot CLI](https://docs.github.com/en/copilot) or [Claude Code](https://docs.anthropic.com/en/docs/claude-code)) repeatedly until all PRD items are complete. Each iteration is a fresh instance with clean context. Memory persists via git history, `progress.txt`, and `prd.json`.
+Ralph is an autonomous AI agent loop that runs AI coding tools ([Copilot CLI](https://docs.github.com/en/copilot), [Claude Code](https://docs.anthropic.com/en/docs/claude-code), or [OpenAI Codex CLI](https://github.com/openai/codex)) repeatedly until all PRD items are complete. Each iteration is a fresh instance with clean context. Memory persists via git history, `progress.txt`, and `prd.json`.
 
 Based on [Geoffrey Huntley's Ralph pattern](https://ghuntley.com/ralph/).
 
@@ -25,6 +25,7 @@ This creates `scripts\ralph\` with everything you need, and updates your `.gitig
 - One of the following AI coding tools installed and authenticated:
   - [Copilot CLI](https://docs.github.com/en/copilot) (default)
   - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) (`npm install -g @anthropic-ai/claude-code`)
+  - [OpenAI Codex CLI](https://github.com/openai/codex) (`npm install -g @openai/codex`)
 - PowerShell 5.1+ (included with Windows) or PowerShell 7+ (cross-platform)
 - A git repository for your project
 
@@ -102,9 +103,12 @@ This creates `prd.json` with user stories structured for autonomous execution.
 
 # Using Claude Code
 .\scripts\ralph\ralph.ps1 -Tool claude [-MaxIterations 10]
+
+# Using OpenAI Codex CLI
+.\scripts\ralph\ralph.ps1 -Tool codex [-MaxIterations 10]
 ```
 
-Default is 10 iterations. Use `-Tool copilot` or `-Tool claude` to select your AI coding tool.
+Default is 10 iterations. Use `-Tool copilot`, `-Tool claude`, or `-Tool codex` to select your AI coding tool.
 
 Ralph will:
 1. Create a feature branch (from PRD `branchName`)
@@ -120,7 +124,7 @@ Ralph will:
 
 | File | Purpose |
 |------|---------|
-| `ralph.ps1` | The PowerShell loop that spawns fresh AI instances (supports `-Tool copilot` or `-Tool claude`) |
+| `ralph.ps1` | The PowerShell loop that spawns fresh AI instances (supports `-Tool copilot`, `-Tool claude`, or `-Tool codex`) |
 | `CLAUDE.md` | Shared prompt template used by both tools |
 | `prd.json` | User stories with `passes` status (the task list) |
 | `prd.json.example` | Example PRD format for reference |
@@ -133,7 +137,7 @@ Ralph will:
 
 ### Each Iteration = Fresh Context
 
-Each iteration spawns a **new AI instance** (Copilot CLI or Claude Code) with clean context. The only memory between iterations is:
+Each iteration spawns a **new AI instance** (Copilot CLI, Claude Code, or OpenAI Codex CLI) with clean context. The only memory between iterations is:
 - Git history (commits from previous iterations)
 - `progress.txt` (learnings and context)
 - `prd.json` (which stories are done)
@@ -208,3 +212,4 @@ Ralph automatically archives previous runs when you start a new feature (differe
 - [Geoffrey Huntley's Ralph article](https://ghuntley.com/ralph/)
 - [Copilot CLI documentation](https://docs.github.com/en/copilot)
 - [Claude Code documentation](https://docs.anthropic.com/en/docs/claude-code)
+- [OpenAI Codex CLI](https://github.com/openai/codex)

@@ -4,14 +4,14 @@
     "name": "KyleBastien"
   },
   "metadata": {
-    "description": "Skills for the Ralph-PowerShell autonomous agent system - Generate PRDs and convert them to prd.json format for autonomous execution with Copilot CLI or Claude Code",
+    "description": "Skills for the Ralph-PowerShell autonomous agent system - Generate PRDs and convert them to prd.json format for autonomous execution with Copilot CLI, Claude Code, or OpenAI Codex CLI",
     "version": "1.0.0"
   },
   "plugins": [
     {
       "name": "ralph-powershell-skills",
       "source": "./",
-      "description": "PRD generation and conversion skills for the Ralph-PowerShell autonomous agent loop (Copilot CLI and Claude Code)",
+      "description": "PRD generation and conversion skills for the Ralph-PowerShell autonomous agent loop (Copilot CLI, Claude Code, and OpenAI Codex CLI)",
       "version": "1.0.0",
       "keywords": ["ralph-powershell", "prd", "automation", "agent", "planning"],
       "category": "productivity",

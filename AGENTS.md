@@ -2,13 +2,13 @@
 
 ## Overview
 
-Ralph is an autonomous AI agent loop (PowerShell) that spawns fresh Copilot CLI or Claude Code instances in a loop, each completing one user story from a `prd.json` file until all stories pass. Each iteration has **no memory** of previous iterations — state persists only through git history, `prd.json`, and `progress.txt`.
+Ralph is an autonomous AI agent loop (PowerShell) that spawns fresh Copilot CLI, Claude Code, or OpenAI Codex CLI instances in a loop, each completing one user story from a `prd.json` file until all stories pass. Each iteration has **no memory** of previous iterations — state persists only through git history, `prd.json`, and `progress.txt`.
 
 ## Architecture
 
 ```
 ralph.ps1              # Main loop — spawns AI instances, checks for <promise>COMPLETE</promise>
-CLAUDE.md              # Shared prompt injected into every AI iteration (both tools)
+CLAUDE.md              # Shared prompt injected into every AI iteration (all tools)
 prd.json.example       # Reference format for the task list
 init-ralph.ps1         # One-liner installer — copies ralph into scripts/ralph/ in a target project
 skills/prd/SKILL.md    # Skill: generates PRD markdown from feature descriptions
@@ -19,11 +19,12 @@ skills/ralph/SKILL.md  # Skill: converts PRD markdown → prd.json for autonomou
 ### How ralph.ps1 Works
 
 1. Archives previous run if `prd.json` has a different `branchName` than `.last-branch`
-2. Reads `CLAUDE.md` as the prompt and passes it to either `copilot` or `claude` CLI
+2. Reads `CLAUDE.md` as the prompt and passes it to `copilot`, `claude`, or `codex` CLI
 3. For Copilot CLI: streams plain text stdout line-by-line
 4. For Claude Code: streams `--output-format stream-json` and parses `assistant` messages
-5. Checks output for `<promise>COMPLETE</promise>` to know all stories are done
-6. Loops up to `-MaxIterations` (default 10) with 2-second pauses between iterations
+5. For Codex CLI: streams `--json` output and parses `item.completed`/`item.started` events
+6. Checks output for `<promise>COMPLETE</promise>` to know all stories are done
+7. Loops up to `-MaxIterations` (default 10) with 2-second pauses between iterations
 
 ### Skill System
 
@@ -37,6 +38,9 @@ Skills live in `skills/<name>/SKILL.md` and are installed to `.agents/skills/` (
 
 # Run with Claude Code
 .\ralph.ps1 -Tool claude [-MaxIterations 10]
+
+# Run with OpenAI Codex CLI
+.\ralph.ps1 -Tool codex [-MaxIterations 10]
 
 # Check story status
 (Get-Content prd.json | ConvertFrom-Json).userStories | Select-Object id, title, passes
